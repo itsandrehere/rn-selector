@@ -2,6 +2,21 @@
 
 A customizable and feature-rich selector component for React Native with Expo support.
 
+[![npm version](https://img.shields.io/npm/v/rn-selector)](https://www.npmjs.com/package/rn-selector)
+
+
+## 📲 Examples
+
+iOS
+
+https://github.com/user-attachments/assets/e3bb8357-cc24-46fa-9fa3-a12dd548cfc0
+
+
+android
+
+https://github.com/user-attachments/assets/6e336791-7281-49ec-9a75-8a166b59a837
+
+
 ## Features
 
 - 🔍 **Searchable**: Optional search functionality to filter options
