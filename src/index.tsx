@@ -199,7 +199,7 @@ export const Selector: React.FC<SelectorProps> = ({
     if (multiple && selectedOpts && selectedOpts.length > 0) {
       const displayText =
         selectedOpts.length === 1
-          ? selectedOpts[0].label
+          ? selectedOpts[0]?.label
           : `${selectedOpts.length} items selected`;
 
       return (
