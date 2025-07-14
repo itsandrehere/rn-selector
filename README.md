@@ -7,14 +7,10 @@ A customizable and feature-rich selector component for React Native with Expo su
 
 ## 📲 Examples
 
-iOS
+![demo-ios](https://github.com/user-attachments/assets/74e520a8-1a26-4d6b-a971-682b6be54a29)
 
-https://github.com/user-attachments/assets/e3bb8357-cc24-46fa-9fa3-a12dd548cfc0
+![demo-android](https://github.com/user-attachments/assets/05d5527f-4767-46fa-b870-111418d8026d)
 
-
-android
-
-https://github.com/user-attachments/assets/6e336791-7281-49ec-9a75-8a166b59a837
 
 
 ## Features
