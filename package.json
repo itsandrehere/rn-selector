@@ -1,6 +1,6 @@
 {
   "name": "rn-selector",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "selector from expo and react native",
   "source": "./src/index.tsx",
   "main": "./lib/module/index.js",
