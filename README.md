@@ -55,6 +55,47 @@ export default function App() {
 }
 ```
 
+## Props
+
+### Functional Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `options` | `Array<{label: string, value: any}>` | ✅ | - | Array of options to display in the selector |
+| `selectedValue` | `any` | ✅ | - | Currently selected value |
+| `placeholder` | `string` | ❌ | `"Select an option"` | Placeholder text when no option is selected |
+| `searchable` | `boolean` | ❌ | `false` | Enable search functionality |
+| `searchPlaceholder` | `string` | ❌ | `"Search..."` | Placeholder text for search input |
+| `disabled` | `boolean` | ❌ | `false` | Disable the selector |
+| `multiple` | `boolean` | ❌ | `false` | Allow multiple selection |
+| `maxHeight` | `number` | ❌ | `200` | Maximum height of the dropdown list |
+| `showDropdownIcon` | `boolean` | ❌ | `true` | Show/hide dropdown arrow icon |
+| `dropdownIcon` | `ReactNode` | ❌ | - | Custom dropdown arrow icon |
+| `closeOnSelect` | `boolean` | ❌ | `true` | Close dropdown after selection (ignored when multiple=true) |
+| `animationType` | `'none' \| 'slide' \| 'fade'` | ❌ | `'slide'` | Animation type for dropdown |
+| `testID` | `string` | ❌ | - | Test identifier for testing purposes |
+
+### Methods & Callbacks
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `onValueChange` | `(value: any) => void` | ✅ | - | Callback function called when selection changes |
+| `renderOption` | `(option: Option, isSelected: boolean) => ReactNode` | ❌ | - | Custom render function for options |
+| `renderSelectedValue` | `(value: any, options: Option[]) => ReactNode` | ❌ | - | Custom render function for selected value display |
+
+### Styling Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `style` | `ViewStyle` | ❌ | - | Custom style for the main container |
+| `buttonStyle` | `ViewStyle` | ❌ | - | Custom style for the selector button |
+| `buttonTextStyle` | `TextStyle` | ❌ | - | Custom style for the button text |
+| `dropdownStyle` | `ViewStyle` | ❌ | - | Custom style for the dropdown container |
+| `optionStyle` | `ViewStyle` | ❌ | - | Custom style for each option item |
+| `optionTextStyle` | `TextStyle` | ❌ | - | Custom style for option text |
+| `selectedOptionStyle` | `ViewStyle` | ❌ | - | Custom style for selected option |
+| `searchInputStyle` | `TextStyle` | ❌ | - | Custom style for search input |
+
 ## Contributing
 
 See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
