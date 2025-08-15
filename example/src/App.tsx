@@ -112,7 +112,7 @@ export default function App() {
               onValueChange={handleFruitChange}
               searchable
               modalPosition="bottom"
-              placeholder="Select sfruits"
+              placeholder="Select fruits"
             />
             {selectedFruit.length > 0 ? (
               <Text style={styles.result}>

@@ -28,6 +28,7 @@ export interface SelectorProps {
   placeholder?: string;
   searchable?: boolean;
   searchPlaceholder?: string;
+  placeholderSearchTextColor?: string;
   doneButtonText?: string;
   noResultsText?: string;
   disabled?: boolean;
@@ -35,6 +36,7 @@ export interface SelectorProps {
   modalPosition?: 'center' | 'bottom';
   primaryColor?: string;
   iconCheck?: React.ReactNode;
+  customArrow?: React.ReactNode;
   style?: ViewStyle;
   containerStyle?: ViewStyle;
   dropdownStyle?: ViewStyle;
@@ -47,7 +49,8 @@ export interface SelectorProps {
   maxHeight?: number;
   renderOption?: (
     option: SelectorOption,
-    isSelected: boolean
+    isSelected: boolean,
+    onClose?: () => void
   ) => React.ReactNode;
   renderSelectedOption?: (
     option: SelectorOption | null,
@@ -64,6 +67,7 @@ export const Selector: React.FC<SelectorProps> = ({
   placeholder = 'Select an option',
   searchable = false,
   searchPlaceholder = 'Search...',
+  placeholderSearchTextColor = '#a2a2a2',
   doneButtonText = 'Done',
   noResultsText = 'No matches found',
   disabled = false,
@@ -71,6 +75,7 @@ export const Selector: React.FC<SelectorProps> = ({
   modalPosition = 'center',
   primaryColor = '#1976d2',
   iconCheck,
+  customArrow,
   style,
   containerStyle,
   dropdownStyle,
@@ -165,7 +170,6 @@ export const Selector: React.FC<SelectorProps> = ({
         styles.option,
         optionStyle,
         isSelected && {
-          ...styles.selectedOption,
           backgroundColor: `${primaryColor}10`,
         },
         isSelected && selectedOptionStyle,
@@ -230,6 +234,7 @@ export const Selector: React.FC<SelectorProps> = ({
       {searchable && (
         <TextInput
           style={[styles.searchInput, searchInputStyle]}
+          placeholderTextColor={placeholderSearchTextColor}
           placeholder={searchPlaceholder}
           value={searchText}
           onChangeText={setSearchText}
@@ -249,11 +254,56 @@ export const Selector: React.FC<SelectorProps> = ({
         ) : (
           filteredOptions.map((item, index) => {
             const isSelected = isOptionSelected(item);
+            const isLastItem = index === filteredOptions.length - 1;
+
             const renderedItem = renderOption
-              ? renderOption(item, isSelected)
+              ? renderOption(item, isSelected, handleClose)
               : defaultRenderOption(item, isSelected);
 
-            return <View key={`${item.value}_${index}`}>{renderedItem}</View>;
+            // return <View key={`${item.value}_${index}`}>{renderedItem}</View>;
+
+            if (renderOption) {
+              return <View key={`${item.value}_${index}`}>{renderedItem}</View>;
+            }
+
+            return (
+              <TouchableOpacity
+                key={`${item.value}_${index}`}
+                style={[
+                  styles.option,
+                  !isLastItem && styles.optionBorder,
+                  optionStyle,
+                  isSelected && {
+                    backgroundColor: `${primaryColor}10`,
+                  },
+                  isSelected && selectedOptionStyle,
+                  item.disabled && styles.disabledOption,
+                ]}
+                onPress={() => handleOptionPress(item)}
+                disabled={item.disabled}
+              >
+                <Text
+                  style={[
+                    styles.optionText,
+                    textStyle,
+                    isSelected && {
+                      ...styles.selectedOptionText,
+                      color: primaryColor,
+                    },
+                    item.disabled && styles.disabledOptionText,
+                  ]}
+                >
+                  {item.label}
+                </Text>
+                {multiple &&
+                  isSelected &&
+                  (iconCheck || (
+                    <Text style={[styles.checkmark, { color: primaryColor }]}>
+                      ✓
+                    </Text>
+                  ))}
+              </TouchableOpacity>
+            );
           })
         )}
       </ScrollView>
@@ -282,7 +332,7 @@ export const Selector: React.FC<SelectorProps> = ({
               selectedOption || null,
               selectedOptions
             )}
-        <Text style={styles.arrow}>▼</Text>
+        {customArrow || <Text style={styles.arrow}>▼</Text>}
       </TouchableOpacity>
 
       <Modal
@@ -391,7 +441,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: 'transparent',
     fontSize: 16,
     backgroundColor: '#fff',
     borderTopLeftRadius: 8,
@@ -402,11 +452,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     paddingVertical: 16,
+  },
+  optionBorder: {
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
-  },
-  selectedOption: {
-    // backgroundColor will be set dynamically
   },
   disabledOption: {
     opacity: 0.5,

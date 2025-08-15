@@ -22,6 +22,9 @@ A customizable and feature-rich selector component for React Native with Expo su
 - 🚀 **TypeScript Support**: Full TypeScript support with type definitions
 - 🎯 **Expo Compatible**: Works seamlessly with Expo projects
 - 🔧 **Flexible**: Custom render functions for options and selected values
+- 🎯 **Multiple Selection**: Support for single and multiple selection modes
+- 📍 **Modal Positioning**: Choose between center or bottom modal positioning
+- 🎨 **Custom Arrow Icon**: Support for custom arrows
 
 ## Installation
 
@@ -38,7 +41,7 @@ import { Selector } from 'rn-selector';
 const options = [
   { label: 'Apple', value: 'apple' },
   { label: 'Banana', value: 'banana' },
-  { label: 'Orange', value: 'orange' },
+  { label: 'Orange', value: 'orange', disabled: true }, // Disabled option
 ];
 
 export default function App() {
@@ -48,8 +51,13 @@ export default function App() {
     <Selector
       options={options}
       selectedValue={selectedValue}
-      onValueChange={(value) => setSelectedValue(value)}
+      onValueChange={(value, option) => {
+        console.log('Selected:', value, option);
+        setSelectedValue(value);
+      }}
       placeholder="Select a fruit"
+      searchable={true}
+      primaryColor="#1976d2"
     />
   );
 }
@@ -57,44 +65,162 @@ export default function App() {
 
 ## Props
 
-### Functional Props
+### Core Props
 
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
-| `options` | `Array<{label: string, value: any}>` | ✅ | - | Array of options to display in the selector |
-| `selectedValue` | `any` | ✅ | - | Currently selected value |
+| `options` | `SelectorOption[]` | ✅ | - | Array of options to display. Each option should have `{label: string, value: any, disabled?: boolean}` |
+| `selectedValue` | `any` | ❌ | - | Currently selected value(s). For multiple selection, pass an array |
+| `onValueChange` | `(value: any, option: SelectorOption \| SelectorOption[]) => void` | ✅ | - | Callback function called when selection changes |
 | `placeholder` | `string` | ❌ | `"Select an option"` | Placeholder text when no option is selected |
+| `disabled` | `boolean` | ❌ | `false` | Disable the entire selector |
+| `multiple` | `boolean` | ❌ | `false` | Allow multiple selection |
+
+### Search Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
 | `searchable` | `boolean` | ❌ | `false` | Enable search functionality |
 | `searchPlaceholder` | `string` | ❌ | `"Search..."` | Placeholder text for search input |
-| `disabled` | `boolean` | ❌ | `false` | Disable the selector |
-| `multiple` | `boolean` | ❌ | `false` | Allow multiple selection |
-| `maxHeight` | `number` | ❌ | `200` | Maximum height of the dropdown list |
-| `showDropdownIcon` | `boolean` | ❌ | `true` | Show/hide dropdown arrow icon |
-| `dropdownIcon` | `ReactNode` | ❌ | - | Custom dropdown arrow icon |
-| `closeOnSelect` | `boolean` | ❌ | `true` | Close dropdown after selection (ignored when multiple=true) |
-| `animationType` | `'none' \| 'slide' \| 'fade'` | ❌ | `'slide'` | Animation type for dropdown |
-| `testID` | `string` | ❌ | - | Test identifier for testing purposes |
+| `placeholderSearchTextColor` | `string` | ❌ | `"#a2a2a2"` | Color for search input placeholder text |
+| `noResultsText` | `string` | ❌ | `"No matches found"` | Text to show when search returns no results |
 
-### Methods & Callbacks
+### Modal & UI Props
 
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
-| `onValueChange` | `(value: any) => void` | ✅ | - | Callback function called when selection changes |
-| `renderOption` | `(option: Option, isSelected: boolean) => ReactNode` | ❌ | - | Custom render function for options |
-| `renderSelectedValue` | `(value: any, options: Option[]) => ReactNode` | ❌ | - | Custom render function for selected value display |
+| `modalPosition` | `'center' \| 'bottom'` | ❌ | `'center'` | Position of the modal dropdown |
+| `modalBackgroundColor` | `string` | ❌ | `'rgba(0, 0, 0, 0.5)'` | Background color of modal overlay |
+| `maxHeight` | `number` | ❌ | `screenHeight * 0.5` | Maximum height of the dropdown list |
+| `primaryColor` | `string` | ❌ | `'#1976d2'` | Primary color used for selected items and buttons |
+| `doneButtonText` | `string` | ❌ | `'Done'` | Text for done button (shown in multiple selection mode) |
+
+### Custom Icons Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `iconCheck` | `ReactNode` | ❌ | `✓` | Custom checkmark icon for selected items in multiple mode |
+| `customArrow` | `ReactNode` | ❌ | `▼` | Custom dropdown arrow icon |
+
+### Custom Render Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `renderOption` | `(option: SelectorOption, isSelected: boolean, onClose?: () => void) => ReactNode` | ❌ | - | Custom render function for options. The `onClose` parameter allows you to close the modal programmatically |
+| `renderSelectedOption` | `(option: SelectorOption \| null, selectedOptions?: SelectorOption[]) => ReactNode` | ❌ | - | Custom render function for the selected value display |
 
 ### Styling Props
 
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
-| `style` | `ViewStyle` | ❌ | - | Custom style for the main container |
-| `buttonStyle` | `ViewStyle` | ❌ | - | Custom style for the selector button |
-| `buttonTextStyle` | `TextStyle` | ❌ | - | Custom style for the button text |
+| `style` | `ViewStyle` | ❌ | - | Custom style for the selector button |
+| `containerStyle` | `ViewStyle` | ❌ | - | Custom style for the main container |
 | `dropdownStyle` | `ViewStyle` | ❌ | - | Custom style for the dropdown container |
 | `optionStyle` | `ViewStyle` | ❌ | - | Custom style for each option item |
-| `optionTextStyle` | `TextStyle` | ❌ | - | Custom style for option text |
-| `selectedOptionStyle` | `ViewStyle` | ❌ | - | Custom style for selected option |
-| `searchInputStyle` | `TextStyle` | ❌ | - | Custom style for search input |
+| `selectedOptionStyle` | `ViewStyle` | ❌ | - | Custom style for selected option items |
+| `textStyle` | `TextStyle` | ❌ | - | Custom style for option text and selected text |
+| `placeholderTextStyle` | `TextStyle` | ❌ | - | Custom style for placeholder text |
+| `searchInputStyle` | `TextStyle` | ❌ | - | Custom style for search input field |
+
+## Examples
+
+### Basic Usage
+```jsx
+<Selector
+  options={[
+    { label: 'Option 1', value: '1' },
+    { label: 'Option 2', value: '2' },
+  ]}
+  selectedValue={selectedValue}
+  onValueChange={setSelectedValue}
+  placeholder="Choose an option"
+/>
+```
+
+### Multiple Selection
+```jsx
+<Selector
+  options={options}
+  selectedValue={selectedValues} // Array of values
+  onValueChange={(values, selectedOptions) => {
+    setSelectedValues(values);
+    console.log('Selected options:', selectedOptions);
+  }}
+  multiple={true}
+  placeholder="Select multiple options"
+/>
+```
+
+### Searchable with Custom Styling
+```jsx
+<Selector
+  options={options}
+  selectedValue={selectedValue}
+  onValueChange={setSelectedValue}
+  searchable={true}
+  searchPlaceholder="Type to search..."
+  primaryColor="#ff6b6b"
+  style={{
+    borderColor: '#ff6b6b',
+    borderRadius: 12,
+  }}
+  dropdownStyle={{
+    borderRadius: 12,
+  }}
+/>
+```
+
+### Custom Option Rendering
+```jsx
+<Selector
+  options={options}
+  selectedValue={selectedValue}
+  onValueChange={setSelectedValue}
+  renderOption={(option, isSelected, onClose) => (
+    <TouchableOpacity
+      style={{
+        padding: 15,
+        backgroundColor: isSelected ? '#e3f2fd' : 'white',
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}
+      onPress={() => {
+        // Handle selection
+        handleSelection(option);
+        // Close modal if needed
+        onClose?.();
+      }}
+    >
+      <Image source={{ uri: option.icon }} style={{ width: 24, height: 24, marginRight: 10 }} />
+      <Text style={{ color: isSelected ? '#1976d2' : '#333' }}>
+        {option.label}
+      </Text>
+    </TouchableOpacity>
+  )}
+/>
+```
+
+### Bottom Modal with Custom Selected Display
+```jsx
+<Selector
+  options={options}
+  selectedValue={selectedValue}
+  onValueChange={setSelectedValue}
+  modalPosition="bottom"
+  multiple={true}
+  renderSelectedOption={(option, selectedOptions) => (
+    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Text>
+        {selectedOptions?.length > 0 
+          ? `${selectedOptions.length} selected` 
+          : 'Select items'}
+      </Text>
+      <Badge count={selectedOptions?.length || 0} />
+    </View>
+  )}
+/>
+```
+
 
 ## Contributing
 
