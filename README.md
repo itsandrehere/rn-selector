@@ -87,6 +87,12 @@ export default function App() {
 }
 ```
 
+## Demo
+
+
+![LINK DEMO](https://snack.expo.dev/@itsandrehere/react-native-selector-demo)
+
+
 ## 📲 Examples
 
 
