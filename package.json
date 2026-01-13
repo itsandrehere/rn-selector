@@ -1,7 +1,7 @@
 {
   "name": "rn-selector",
-  "version": "0.1.3",
-  "description": "selector from expo and react native",
+  "version": "2.0.0",
+  "description": "A customizable, searchable selector component for React Native and Expo with grouped configuration and TypeScript support.",
   "source": "./src/index.tsx",
   "main": "./lib/module/index.js",
   "exports": {
@@ -41,8 +41,14 @@
   },
   "keywords": [
     "react-native",
-    "ios",
-    "android"
+    "react native",
+    "expo",
+    "selector",
+    "dropdown",
+    "select",
+    "picker",
+    "multiple select",
+    "searchable"
   ],
   "repository": {
     "type": "git",
@@ -70,7 +76,8 @@
     "@release-it/conventional-changelog": "^9.0.2",
     "@types/jest": "^29.5.5",
     "@types/react": "^19.0.12",
-    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
+    "@typescript-eslint/parser": "^8.53.0",
     "commitlint": "^19.6.1",
     "del-cli": "^5.1.0",
     "eslint": "^9.22.0",

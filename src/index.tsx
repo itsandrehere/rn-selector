@@ -12,46 +12,218 @@ import {
 } from 'react-native';
 import type { ViewStyle, TextStyle } from 'react-native';
 
+// ==================== Type Utilities ====================
+
+/**
+ * Makes all properties in T optional recursively
+ */
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends Record<string, any> ? DeepPartial<T[P]> : T[P];
+};
+
+// ==================== Core Interfaces ====================
+
+/**
+ * Represents a single selectable option
+ */
 export interface SelectorOption {
   label: string;
   value: any;
   disabled?: boolean;
 }
 
+// ==================== Configuration Interfaces ====================
+
+/**
+ * Styling configuration for all visual elements of the Selector
+ * @example
+ * ```tsx
+ * <Selector
+ *   styles={{
+ *     container: { marginVertical: 10 },
+ *     button: { borderRadius: 12 },
+ *     dropdown: { maxHeight: 400 }
+ *   }}
+ * />
+ * ```
+ */
+export interface StylesConfig {
+  /** Main wrapper container style */
+  container?: ViewStyle;
+  /** Selector button container style */
+  button?: ViewStyle;
+  /** Modal dropdown container style */
+  dropdown?: ViewStyle;
+  /** Individual option item style */
+  optionItem?: ViewStyle;
+  /** Selected option item style */
+  selectedOptionItem?: ViewStyle;
+  /** Option text style */
+  text?: TextStyle;
+  /** Placeholder text style */
+  placeholderText?: TextStyle;
+  /** Search input field style */
+  searchInput?: TextStyle;
+}
+
+/**
+ * Search functionality configuration
+ * @example
+ * ```tsx
+ * <Selector
+ *   searchConfig={{
+ *     searchable: true,
+ *     placeholder: "Type to filter...",
+ *     noResultsText: "No items found"
+ *   }}
+ * />
+ * ```
+ */
+export interface SearchConfig {
+  /** Enable search functionality */
+  searchable: boolean;
+  /** Search input placeholder text */
+  placeholder?: string;
+  /** Search input placeholder text color */
+  placeholderTextColor?: string;
+  /** Text displayed when search returns no results */
+  noResultsText?: string;
+}
+
+/**
+ * Modal behavior and appearance configuration
+ * @example
+ * ```tsx
+ * <Selector
+ *   modalConfig={{
+ *     position: "bottom",
+ *     overlayColor: "rgba(0, 0, 0, 0.7)",
+ *     maxDropdownHeight: 500,
+ *     confirmText: "Apply"
+ *   }}
+ * />
+ * ```
+ */
+export interface ModalConfig {
+  /** Modal position on screen */
+  position?: 'center' | 'bottom';
+  /** Modal overlay background color */
+  overlayColor?: string;
+  /** Maximum dropdown height in pixels */
+  maxDropdownHeight?: number;
+  /** Done button text (shown in multiple selection mode) */
+  confirmText?: string;
+}
+
+/**
+ * Theme and visual customization configuration
+ * @example
+ * ```tsx
+ * <Selector
+ *   theme={{
+ *     primaryColor: "#FF5722",
+ *     checkIcon: <Icon name="check" />,
+ *     arrowIcon: <Icon name="chevron-down" />
+ *   }}
+ * />
+ * ```
+ */
+export interface ThemeConfig {
+  /** Primary color for selected items, checkmarks, and buttons */
+  primaryColor?: string;
+  /** Custom checkmark icon for multiple selection */
+  checkIcon?: React.ReactNode;
+  /** Custom dropdown arrow icon */
+  arrowIcon?: React.ReactNode;
+}
+
+/**
+ * Create new element configuration
+ * Allows users to create new options when search returns no results
+ * @example
+ * ```tsx
+ * <Selector
+ *   createConfig={{
+ *     enabled: true,
+ *     text: "Add new item",
+ *     onPress: (searchTerm) => {
+ *       const newOption = { label: searchTerm, value: searchTerm };
+ *       setOptions([...options, newOption]);
+ *       setSelectedValue(searchTerm);
+ *     }
+ *   }}
+ * />
+ * ```
+ */
+export interface CreateConfig {
+  /** Enable create element functionality */
+  enabled: boolean;
+  /** Button text (can use searchTerm in parent) */
+  text: string;
+  /** Callback when create button is pressed. Receives current search term */
+  onPress: (searchTerm: string) => void;
+  /** Custom button style */
+  style?: ViewStyle;
+  /** Custom button text style */
+  textStyle?: TextStyle;
+}
+
+// ==================== Main Component Props ====================
+
+/**
+ * Props for the Selector component (v2.0)
+ * @example
+ * ```tsx
+ * <Selector
+ *   options={[
+ *     { label: 'Apple', value: 'apple' },
+ *     { label: 'Banana', value: 'banana' }
+ *   ]}
+ *   selectedValue="apple"
+ *   onValueChange={(value) => setSelected(value)}
+ *   placeholder="Select a fruit"
+ *   searchConfig={{ searchable: true }}
+ * />
+ * ```
+ */
 export interface SelectorProps {
+  // Core Props
+  /** Array of selectable options */
   options: SelectorOption[];
+  /** Currently selected value(s). For multiple selection, pass an array */
   selectedValue?: any;
+  /** Callback when selection changes */
   onValueChange: (
     value: any,
     option: SelectorOption | SelectorOption[]
   ) => void;
+  /** Placeholder text when no option is selected */
   placeholder?: string;
-  searchable?: boolean;
-  searchPlaceholder?: string;
-  placeholderSearchTextColor?: string;
-  doneButtonText?: string;
-  noResultsText?: string;
+  /** Disable the entire selector */
   disabled?: boolean;
+  /** Enable multiple selection mode */
   multiple?: boolean;
-  modalPosition?: 'center' | 'bottom';
-  primaryColor?: string;
-  iconCheck?: React.ReactNode;
-  customArrow?: React.ReactNode;
-  style?: ViewStyle;
-  containerStyle?: ViewStyle;
-  dropdownStyle?: ViewStyle;
-  optionStyle?: ViewStyle;
-  selectedOptionStyle?: ViewStyle;
-  textStyle?: TextStyle;
-  placeholderTextStyle?: TextStyle;
-  searchInputStyle?: TextStyle;
-  modalBackgroundColor?: string;
-  maxHeight?: number;
+
+  // Configuration Objects (v2)
+  /** Styling configuration for all visual elements */
+  styles?: DeepPartial<StylesConfig>;
+  /** Search functionality configuration */
+  searchConfig?: Partial<SearchConfig>;
+  /** Modal behavior and appearance configuration */
+  modalConfig?: Partial<ModalConfig>;
+  /** Theme and visual customization */
+  theme?: Partial<ThemeConfig>;
+  /** Create new element configuration */
+  createConfig?: CreateConfig;
+
+  // Custom Render Functions
+  /** Custom render function for options */
   renderOption?: (
     option: SelectorOption,
     isSelected: boolean,
     onClose?: () => void
   ) => React.ReactNode;
+  /** Custom render function for selected value display */
   renderSelectedOption?: (
     option: SelectorOption | null,
     selectedOptions?: SelectorOption[]
@@ -60,35 +232,49 @@ export interface SelectorProps {
 
 const { height: screenHeight } = Dimensions.get('window');
 
+// ==================== Default Config Helpers ====================
+
+const getSearchConfig = (config?: Partial<SearchConfig>): SearchConfig => ({
+  searchable: config?.searchable ?? false,
+  placeholder: config?.placeholder ?? 'Search...',
+  placeholderTextColor: config?.placeholderTextColor ?? '#a2a2a2',
+  noResultsText: config?.noResultsText ?? 'No matches found',
+});
+
+const getModalConfig = (config?: Partial<ModalConfig>): ModalConfig => ({
+  position: config?.position ?? 'center',
+  overlayColor: config?.overlayColor ?? 'rgba(0, 0, 0, 0.5)',
+  maxDropdownHeight: config?.maxDropdownHeight ?? screenHeight * 0.5,
+  confirmText: config?.confirmText ?? 'Done',
+});
+
+const getThemeConfig = (config?: Partial<ThemeConfig>): ThemeConfig => ({
+  primaryColor: config?.primaryColor ?? '#1976d2',
+  checkIcon: config?.checkIcon,
+  arrowIcon: config?.arrowIcon,
+});
+
+// ==================== Component ====================
+
 export const Selector: React.FC<SelectorProps> = ({
   options = [],
   selectedValue,
   onValueChange,
   placeholder = 'Select an option',
-  searchable = false,
-  searchPlaceholder = 'Search...',
-  placeholderSearchTextColor = '#a2a2a2',
-  doneButtonText = 'Done',
-  noResultsText = 'No matches found',
   disabled = false,
   multiple = false,
-  modalPosition = 'center',
-  primaryColor = '#1976d2',
-  iconCheck,
-  customArrow,
-  style,
-  containerStyle,
-  dropdownStyle,
-  optionStyle,
-  selectedOptionStyle,
-  textStyle,
-  placeholderTextStyle,
-  searchInputStyle,
-  modalBackgroundColor = 'rgba(0, 0, 0, 0.5)',
-  maxHeight = screenHeight * 0.5,
+  styles: customStyles,
+  searchConfig: searchConfigProp,
+  modalConfig: modalConfigProp,
+  theme: themeProp,
+  createConfig,
   renderOption,
   renderSelectedOption,
 }) => {
+  // Merge configs with defaults
+  const searchConfig = getSearchConfig(searchConfigProp);
+  const modalConfig = getModalConfig(modalConfigProp);
+  const theme = getThemeConfig(themeProp);
   const [modalVisible, setModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [filteredOptions, setFilteredOptions] = useState(options);
@@ -96,7 +282,7 @@ export const Selector: React.FC<SelectorProps> = ({
   const containerRef = useRef<View>(null);
 
   useEffect(() => {
-    if (searchable && searchText) {
+    if (searchConfig.searchable && searchText) {
       const filtered = options.filter((option) =>
         option.label.toLowerCase().includes(searchText.toLowerCase())
       );
@@ -104,7 +290,7 @@ export const Selector: React.FC<SelectorProps> = ({
     } else {
       setFilteredOptions(options);
     }
-  }, [searchText, options, searchable]);
+  }, [searchText, options, searchConfig.searchable]);
 
   const selectedOptions = multiple
     ? options.filter((option) =>
@@ -168,11 +354,11 @@ export const Selector: React.FC<SelectorProps> = ({
     <TouchableOpacity
       style={[
         styles.option,
-        optionStyle,
+        customStyles?.optionItem,
         isSelected && {
-          backgroundColor: `${primaryColor}10`,
+          backgroundColor: `${theme.primaryColor}10`,
         },
-        isSelected && selectedOptionStyle,
+        isSelected && customStyles?.selectedOptionItem,
         option.disabled && styles.disabledOption,
       ]}
       onPress={() => handleOptionPress(option)}
@@ -181,8 +367,11 @@ export const Selector: React.FC<SelectorProps> = ({
       <Text
         style={[
           styles.optionText,
-          textStyle,
-          isSelected && { ...styles.selectedOptionText, color: primaryColor },
+          customStyles?.text,
+          isSelected && {
+            ...styles.selectedOptionText,
+            color: theme.primaryColor,
+          },
           option.disabled && styles.disabledOptionText,
         ]}
       >
@@ -190,8 +379,10 @@ export const Selector: React.FC<SelectorProps> = ({
       </Text>
       {multiple &&
         isSelected &&
-        (iconCheck || (
-          <Text style={[styles.checkmark, { color: primaryColor }]}>✓</Text>
+        (theme.checkIcon || (
+          <Text style={[styles.checkmark, { color: theme.primaryColor }]}>
+            ✓
+          </Text>
         ))}
     </TouchableOpacity>
   );
@@ -207,7 +398,9 @@ export const Selector: React.FC<SelectorProps> = ({
           : `${selectedOpts.length} items selected`;
 
       return (
-        <Text style={[styles.selectorText, textStyle]}>{displayText}</Text>
+        <Text style={[styles.selectorText, customStyles?.text]}>
+          {displayText}
+        </Text>
       );
     }
 
@@ -215,7 +408,9 @@ export const Selector: React.FC<SelectorProps> = ({
       <Text
         style={[
           styles.selectorText,
-          option ? textStyle : [styles.placeholderText, placeholderTextStyle],
+          option
+            ? customStyles?.text
+            : [styles.placeholderText, customStyles?.placeholderText],
         ]}
       >
         {option ? option.label : placeholder}
@@ -226,16 +421,18 @@ export const Selector: React.FC<SelectorProps> = ({
   const renderDropdownContent = () => (
     <View
       style={[
-        modalPosition === 'bottom' ? styles.bottomDropdown : styles.dropdown,
-        dropdownStyle,
-        { maxHeight },
+        modalConfig.position === 'bottom'
+          ? styles.bottomDropdown
+          : styles.dropdown,
+        customStyles?.dropdown,
+        { maxHeight: modalConfig.maxDropdownHeight },
       ]}
     >
-      {searchable && (
+      {searchConfig.searchable && (
         <TextInput
-          style={[styles.searchInput, searchInputStyle]}
-          placeholderTextColor={placeholderSearchTextColor}
-          placeholder={searchPlaceholder}
+          style={[styles.searchInput, customStyles?.searchInput]}
+          placeholderTextColor={searchConfig.placeholderTextColor}
+          placeholder={searchConfig.placeholder}
           value={searchText}
           onChangeText={setSearchText}
           autoCapitalize="none"
@@ -249,7 +446,27 @@ export const Selector: React.FC<SelectorProps> = ({
       >
         {filteredOptions.length === 0 ? (
           <View style={styles.noResultsContainer}>
-            <Text style={styles.noResultsText}>{noResultsText}</Text>
+            {createConfig?.enabled && searchConfig.searchable && searchText ? (
+              <TouchableOpacity
+                style={[
+                  styles.createButton,
+                  { backgroundColor: theme.primaryColor },
+                  createConfig.style,
+                ]}
+                onPress={() => {
+                  createConfig.onPress(searchText);
+                  handleClose();
+                }}
+              >
+                <Text style={[styles.createButtonText, createConfig.textStyle]}>
+                  {createConfig.text}
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <Text style={styles.noResultsText}>
+                {searchConfig.noResultsText}
+              </Text>
+            )}
           </View>
         ) : (
           filteredOptions.map((item, index) => {
@@ -272,11 +489,11 @@ export const Selector: React.FC<SelectorProps> = ({
                 style={[
                   styles.option,
                   !isLastItem && styles.optionBorder,
-                  optionStyle,
+                  customStyles?.optionItem,
                   isSelected && {
-                    backgroundColor: `${primaryColor}10`,
+                    backgroundColor: `${theme.primaryColor}10`,
                   },
-                  isSelected && selectedOptionStyle,
+                  isSelected && customStyles?.selectedOptionItem,
                   item.disabled && styles.disabledOption,
                 ]}
                 onPress={() => handleOptionPress(item)}
@@ -285,10 +502,10 @@ export const Selector: React.FC<SelectorProps> = ({
                 <Text
                   style={[
                     styles.optionText,
-                    textStyle,
+                    customStyles?.text,
                     isSelected && {
                       ...styles.selectedOptionText,
-                      color: primaryColor,
+                      color: theme.primaryColor,
                     },
                     item.disabled && styles.disabledOptionText,
                   ]}
@@ -297,8 +514,10 @@ export const Selector: React.FC<SelectorProps> = ({
                 </Text>
                 {multiple &&
                   isSelected &&
-                  (iconCheck || (
-                    <Text style={[styles.checkmark, { color: primaryColor }]}>
+                  (theme.checkIcon || (
+                    <Text
+                      style={[styles.checkmark, { color: theme.primaryColor }]}
+                    >
                       ✓
                     </Text>
                   ))}
@@ -309,20 +528,27 @@ export const Selector: React.FC<SelectorProps> = ({
       </ScrollView>
       {multiple && (
         <TouchableOpacity
-          style={[styles.doneButton, { backgroundColor: primaryColor }]}
+          style={[styles.doneButton, { backgroundColor: theme.primaryColor }]}
           onPress={handleClose}
         >
-          <Text style={styles.doneButtonText}>{doneButtonText}</Text>
+          <Text style={styles.doneButtonText}>{modalConfig.confirmText}</Text>
         </TouchableOpacity>
       )}
     </View>
   );
 
   return (
-    <View ref={containerRef} style={[styles.container, containerStyle]}>
+    <View
+      ref={containerRef}
+      style={[styles.container, customStyles?.container]}
+    >
       <TouchableOpacity
         ref={selectorRef}
-        style={[styles.selector, style, disabled && styles.disabledSelector]}
+        style={[
+          styles.selector,
+          customStyles?.button,
+          disabled && styles.disabledSelector,
+        ]}
         onPress={handleSelectorPress}
         disabled={disabled}
       >
@@ -332,21 +558,21 @@ export const Selector: React.FC<SelectorProps> = ({
               selectedOption || null,
               selectedOptions
             )}
-        {customArrow || <Text style={styles.arrow}>▼</Text>}
+        {theme.arrowIcon || <Text style={styles.arrow}>▼</Text>}
       </TouchableOpacity>
 
       <Modal
         visible={modalVisible}
         transparent
-        animationType={modalPosition === 'bottom' ? 'slide' : 'fade'}
+        animationType={modalConfig.position === 'bottom' ? 'slide' : 'fade'}
         onRequestClose={handleClose}
       >
         <TouchableOpacity
           style={[
-            modalPosition === 'bottom'
+            modalConfig.position === 'bottom'
               ? styles.bottomModalOverlay
               : styles.modalOverlay,
-            { backgroundColor: modalBackgroundColor },
+            { backgroundColor: modalConfig.overlayColor },
           ]}
           activeOpacity={1}
           onPress={multiple ? undefined : handleClose}
@@ -495,5 +721,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#999',
     fontStyle: 'italic',
+  },
+  createButton: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 200,
+  },
+  createButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '600',
   },
 });

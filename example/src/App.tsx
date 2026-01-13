@@ -3,7 +3,7 @@ import { Selector } from 'rn-selector';
 import type { SelectorOption } from 'rn-selector';
 import { Text, View, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 
-const fruits: SelectorOption[] = [
+const initialFruits: SelectorOption[] = [
   { label: 'Apple', value: 'apple' },
   { label: 'Banana', value: 'banana' },
   { label: 'Orange', value: 'orange' },
@@ -39,6 +39,8 @@ const colors: SelectorOption[] = [
 ];
 
 export default function App() {
+  // State for dynamic fruits list (for create feature)
+  const [fruits, setFruits] = useState<SelectorOption[]>(initialFruits);
   const [selectedFruit, setSelectedFruit] = useState<string[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
@@ -62,10 +64,11 @@ export default function App() {
     <SafeAreaView style={styles.safeAreaViewContent}>
       <ScrollView style={styles.container}>
         <View style={styles.content}>
-          <Text style={styles.title}>React Native Selector Demo</Text>
+          <Text style={styles.title}>React Native Selector v2.0</Text>
+          <Text style={styles.subtitle}>Updated to use v2 API</Text>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Single Selection Selector</Text>
+            <Text style={styles.sectionTitle}>Single Selection</Text>
             <Text style={styles.description}>
               Choose one country (single selection):
             </Text>
@@ -83,7 +86,7 @@ export default function App() {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Multiple Selection Selector</Text>
+            <Text style={styles.sectionTitle}>Multiple Selection</Text>
             <Text style={styles.description}>
               Choose your favorite fruits (multiple):
             </Text>
@@ -103,15 +106,15 @@ export default function App() {
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
-              Multiple Bottom Selection Selector
+              Multiple Bottom Modal with Search
             </Text>
             <Selector
               options={fruits}
               selectedValue={selectedFruit}
               multiple
               onValueChange={handleFruitChange}
-              searchable
-              modalPosition="bottom"
+              searchConfig={{ searchable: true }}
+              modalConfig={{ position: 'bottom' }}
               placeholder="Select fruits"
             />
             {selectedFruit.length > 0 ? (
@@ -129,12 +132,56 @@ export default function App() {
               selectedValue={selectedCountry}
               onValueChange={handleCountryChange}
               placeholder="Select a country"
-              searchable
-              searchPlaceholder="Type to search countries..."
+              searchConfig={{
+                searchable: true,
+                placeholder: 'Type to search countries...',
+              }}
             />
             {selectedCountry ? (
               <Text style={styles.result}>Selected: {selectedCountry}</Text>
             ) : null}
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>🆕 Create New Elements</Text>
+            <Text style={styles.description}>
+              Search for a fruit. If not found, create it!
+            </Text>
+            <Selector
+              options={fruits}
+              selectedValue={selectedFruit}
+              multiple
+              onValueChange={handleFruitChange}
+              placeholder="Search or create fruits"
+              searchConfig={{
+                searchable: true,
+                placeholder: 'Type to search or create...',
+                noResultsText: 'No fruits found',
+              }}
+              createConfig={{
+                enabled: true,
+                text: '+ Add new fruit',
+                onPress: (searchTerm) => {
+                  const newFruit: SelectorOption = {
+                    label: searchTerm,
+                    value: searchTerm.toLowerCase().replace(/\s+/g, '-'),
+                  };
+                  setFruits([...fruits, newFruit]);
+                  setSelectedFruit([...selectedFruit, newFruit.value]);
+                  console.log('Created new fruit:', newFruit);
+                },
+                style: { backgroundColor: '#4CAF50' },
+              }}
+              theme={{ primaryColor: '#4CAF50' }}
+            />
+            {selectedFruit.length > 0 ? (
+              <Text style={styles.result}>
+                Selected: {selectedFruit.join(', ')}
+              </Text>
+            ) : null}
+            <Text style={styles.info}>
+              💡 Try searching for "Papaya" or any fruit not in the list
+            </Text>
           </View>
 
           <View style={styles.section}>
@@ -147,11 +194,31 @@ export default function App() {
               selectedValue={selectedColor}
               onValueChange={handleColorChange}
               placeholder="Pick a color"
-              style={styles.customSelector}
-              dropdownStyle={styles.customDropdown}
-              textStyle={styles.customText}
-              placeholderTextStyle={styles.customPlaceholder}
-              selectedOptionStyle={styles.customSelectedOption}
+              styles={{
+                button: {
+                  borderColor: '#007AFF',
+                  borderWidth: 2,
+                  borderRadius: 12,
+                  backgroundColor: '#f8f9ff',
+                },
+                dropdown: {
+                  borderRadius: 12,
+                  borderWidth: 2,
+                  borderColor: '#007AFF',
+                },
+                text: {
+                  fontSize: 16,
+                  fontWeight: '500',
+                  color: '#007AFF',
+                },
+                placeholderText: {
+                  color: '#99c5ff',
+                  fontStyle: 'italic',
+                },
+                selectedOptionItem: {
+                  backgroundColor: '#007AFF',
+                },
+              }}
             />
             {selectedColor ? (
               <View style={styles.colorPreview}>
@@ -196,8 +263,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 5,
     color: '#333',
+  },
+  subtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 30,
+    color: '#4CAF50',
+    fontWeight: '600',
   },
   section: {
     marginBottom: 30,
@@ -227,28 +301,11 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontWeight: '500',
   },
-  customSelector: {
-    borderColor: '#007AFF',
-    borderWidth: 2,
-    borderRadius: 12,
-    backgroundColor: '#f8f9ff',
-  },
-  customDropdown: {
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#007AFF',
-  },
-  customText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#007AFF',
-  },
-  customPlaceholder: {
-    color: '#99c5ff',
+  info: {
+    marginTop: 8,
+    fontSize: 12,
+    color: '#4CAF50',
     fontStyle: 'italic',
-  },
-  customSelectedOption: {
-    backgroundColor: '#007AFF',
   },
   colorPreview: {
     flexDirection: 'row',
