@@ -80,8 +80,10 @@ describe('Selector', () => {
       <Selector
         options={mockOptions}
         onValueChange={mockOnValueChange}
-        searchable={true}
-        searchPlaceholder="Search options..."
+        searchConfig={{
+          searchable: true,
+          placeholder: 'Search options...',
+        }}
       />
     );
 
@@ -97,8 +99,10 @@ describe('Selector', () => {
       <Selector
         options={mockOptions}
         onValueChange={mockOnValueChange}
-        searchable={true}
-        searchPlaceholder="Search..."
+        searchConfig={{
+          searchable: true,
+          placeholder: 'Search options...',
+        }}
       />
     );
 
@@ -121,9 +125,11 @@ describe('Selector', () => {
       <Selector
         options={mockOptions}
         onValueChange={mockOnValueChange}
-        searchable={true}
-        searchPlaceholder="Search..."
-        noResultsText="No matches found"
+        searchConfig={{
+          searchable: true,
+          placeholder: 'Search...',
+          noResultsText: 'No matches found',
+        }}
       />
     );
 
@@ -152,7 +158,9 @@ describe('Selector', () => {
         options={mockOptions}
         onValueChange={handleValueChange}
         multiple={true}
-        doneButtonText="Done"
+        modalConfig={{
+          confirmText: 'Done',
+        }}
         selectedValue={currentSelectedValue}
       />
     );
@@ -169,7 +177,9 @@ describe('Selector', () => {
         options={mockOptions}
         onValueChange={handleValueChange}
         multiple={true}
-        doneButtonText="Done"
+        modalConfig={{
+          confirmText: 'Done',
+        }}
         selectedValue={currentSelectedValue}
       />
     );
@@ -232,7 +242,7 @@ describe('Selector', () => {
       <Selector
         options={mockOptions}
         onValueChange={mockOnValueChange}
-        style={customStyle}
+        styles={{ container: customStyle }}
         placeholder="Select an option"
       />
     );
